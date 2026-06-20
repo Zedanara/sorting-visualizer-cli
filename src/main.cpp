@@ -8,6 +8,12 @@
 #include "sv/core/Theme.hpp"
 #include "sv/core/Visualizer.hpp"
 #include "sv/sorting/BubbleSort.hpp"
+#include "sv/sorting/InsertionSort.hpp"
+#include "sv/sorting/MergeSort.hpp"
+#include "sv/sorting/QuickSort.hpp"
+#include "sv/sorting/HeapSort.hpp"
+#include "sv/sorting/CountingSort.hpp"
+#include <memory>
 
 int main() {
     if (!glfwInit()) {
@@ -35,16 +41,23 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    // --- Inicjalizacja algorytmu ---
-    sv::sorting::BubbleSort bubbleSort;
-    
-    // Dane testowe (na razie zahardkodowane)
+// --- Inicjalizacja ---
     std::vector<int> testData = {45, 12, 89, 33, 2, 67, 90, 15, 23, 77, 56, 8, 99, 41, 62};
-    bubbleSort.init(testData);
+    
+    // Używamy unikalnego wskaźnika do trzymania aktywnego algorytmu
+    std::unique_ptr<sv::sorting::ISortAlgorithm> currentAlgorithm = std::make_unique<sv::sorting::BubbleSort>();
+    currentAlgorithm->init(testData);
 
     bool isSorting = false;
     double lastStepTime = 0.0;
-    const double stepDelay = 0.05; // Opóźnienie między krokami (50ms)
+    const double stepDelay = 0.05;
+
+// Lista dostępnych algorytmów do menu
+const char* algorithmNames[] = { 
+            "Bubble Sort", "Insertion Sort", "Merge Sort", 
+            "Quick Sort", "Heap Sort", "Counting Sort" 
+        };
+        static int currentAlgoIndex = 0;
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -54,13 +67,13 @@ int main() {
         ImGui::NewFrame();
 
         // --- Logika aktualizacji kroków ---
-        if (isSorting && !bubbleSort.isFinished()) {
+        if (isSorting && !currentAlgorithm->isFinished()) {
             double currentTime = ImGui::GetTime();
             if (currentTime - lastStepTime >= stepDelay) {
-                bubbleSort.step();
+                currentAlgorithm->step();
                 lastStepTime = currentTime;
             }
-        } else if (bubbleSort.isFinished()) {
+        } else if (currentAlgorithm->isFinished()) {
             isSorting = false;
         }
 
@@ -68,6 +81,28 @@ int main() {
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(1000, 600), ImGuiCond_FirstUseEver);
         ImGui::Begin("Panel Wizualizacji", nullptr, ImGuiWindowFlags_NoCollapse);
+
+        // Wybór algorytmu
+ImGui::SetNextItemWidth(200);
+        if (ImGui::Combo("Wybierz algorytm", &currentAlgoIndex, algorithmNames, IM_ARRAYSIZE(algorithmNames))) {
+            if (currentAlgoIndex == 0) {
+                currentAlgorithm = std::make_unique<sv::sorting::BubbleSort>();
+            } else if (currentAlgoIndex == 1) {
+                currentAlgorithm = std::make_unique<sv::sorting::InsertionSort>();
+            } else if (currentAlgoIndex == 2) {
+                currentAlgorithm = std::make_unique<sv::sorting::MergeSort>();
+            } else if (currentAlgoIndex == 3) {
+                currentAlgorithm = std::make_unique<sv::sorting::QuickSort>();
+            } else if (currentAlgoIndex == 4) {
+                currentAlgorithm = std::make_unique<sv::sorting::HeapSort>();
+            } else if (currentAlgoIndex == 5) {
+                currentAlgorithm = std::make_unique<sv::sorting::CountingSort>();
+            }
+            currentAlgorithm->init(testData);
+            isSorting = false;
+        }
+
+        ImGui::Separator();
 
         // Panel sterowania
         if (ImGui::Button("Start / Wznow")) {
@@ -81,19 +116,22 @@ int main() {
         ImGui::SameLine();
         if (ImGui::Button("Reset")) {
             isSorting = false;
-            bubbleSort.init(testData); // Reset do stanu początkowego
+            currentAlgorithm->init(testData);
         }
 
-        ImGui::Text("Algorytm: %s | Porownania: %d | Zamiany: %d", 
-            bubbleSort.getName().c_str(), 
-            bubbleSort.getComparisonsCount(), 
-            bubbleSort.getSwapsCount()
+        ImGui::Text("Aktywny: %s | Zlozonosc (Srednia): %s", 
+            currentAlgorithm->getName().c_str(),
+            currentAlgorithm->getComplexityAverage().c_str()
+        );
+        ImGui::Text("Porownania: %d | Zamiany: %d", 
+            currentAlgorithm->getComparisonsCount(), 
+            currentAlgorithm->getSwapsCount()
         );
 
         ImGui::Separator();
 
-        // Rysowanie słupków
-        sv::core::Visualizer::drawBars(bubbleSort.getData(), bubbleSort.getHighlightedIndices());
+        // Rysowanie
+        sv::core::Visualizer::drawBars(currentAlgorithm->getData(), currentAlgorithm->getHighlightedIndices());
 
         ImGui::End();
         // -----------------------------

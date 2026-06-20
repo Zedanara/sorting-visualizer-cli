@@ -9,6 +9,8 @@
 #include "sv/core/Visualizer.hpp"
 #include "sv/sorting/BubbleSort.hpp"
 #include "sv/sorting/InsertionSort.hpp"
+#include "sv/sorting/MergeSort.hpp"
+#include "sv/sorting/QuickSort.hpp"
 #include <memory>
 
 int main() {
@@ -48,9 +50,9 @@ int main() {
     double lastStepTime = 0.0;
     const double stepDelay = 0.05;
 
-    // Lista dostępnych algorytmów do menu
-    const char* algorithmNames[] = { "Bubble Sort", "Insertion Sort" };
-    static int currentAlgoIndex = 0;
+// Lista dostępnych algorytmów do menu
+        const char* algorithmNames[] = { "Bubble Sort", "Insertion Sort", "Merge Sort", "Quick Sort" };
+        static int currentAlgoIndex = 0;
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -78,11 +80,14 @@ int main() {
         // Wybór algorytmu
         ImGui::SetNextItemWidth(200);
         if (ImGui::Combo("Wybierz algorytm", &currentAlgoIndex, algorithmNames, IM_ARRAYSIZE(algorithmNames))) {
-            // Jeśli zmieniono algorytm, tworzymy nowy obiekt i resetujemy dane
             if (currentAlgoIndex == 0) {
                 currentAlgorithm = std::make_unique<sv::sorting::BubbleSort>();
             } else if (currentAlgoIndex == 1) {
                 currentAlgorithm = std::make_unique<sv::sorting::InsertionSort>();
+            } else if (currentAlgoIndex == 2) {
+                currentAlgorithm = std::make_unique<sv::sorting::MergeSort>();
+            } else if (currentAlgoIndex == 3) {
+                currentAlgorithm = std::make_unique<sv::sorting::QuickSort>();
             }
             currentAlgorithm->init(testData);
             isSorting = false;

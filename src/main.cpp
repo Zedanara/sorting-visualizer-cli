@@ -3,6 +3,7 @@
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "sv/core/Theme.hpp"
 
 int main() {
     // 1. Inicjalizacja GLFW
@@ -28,7 +29,7 @@ int main() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     
-    ImGui::StyleColorsDark();
+    sv::core::applyDarkTheme();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");

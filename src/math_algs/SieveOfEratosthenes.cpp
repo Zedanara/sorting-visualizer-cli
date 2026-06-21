@@ -9,7 +9,7 @@ namespace sv::math_algs {
         for(int i = 0; i <= m_limit; i++) {
             m_data[i] = i;
         }
-        m_data[0] = -1 // 0 i 1 nie są pierwsze (oznaczamy ujemnymi)
+        m_data[0] = -1; // 0 i 1 nie są pierwsze (oznaczamy ujemnymi)
         m_data[1] = -1;
 
         m_p = 2;

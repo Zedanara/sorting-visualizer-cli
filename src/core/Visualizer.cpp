@@ -1,5 +1,7 @@
 #include "sv/core/Visualizer.hpp"
 #include "imgui.h"
+#include <string>
+#include <algorithm>
 
 namespace sv::core {
 

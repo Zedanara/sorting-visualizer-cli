@@ -63,6 +63,7 @@ int main() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.IniFilename = nullptr; 
     
     sv::core::applyDarkTheme();
 
@@ -337,6 +338,17 @@ int main() {
         
         ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.4f, 1.0f), Localization::getLanguage() == Language::PL ? "Najgorszy przypadek:" : "Worst Case:");
         ImGui::TextWrapped("%s", details.worstCase.c_str());
+
+        ImGui::Spacing();
+        ImGui::Separator();
+        
+        if (ImGui::CollapsingHeader(Localization::getLanguage() == Language::PL ? "Przyklad krok po kroku" : "Step-by-step example")) {
+            ImGui::TextWrapped("%s", details.stepByStepExample.c_str());
+        }
+        
+        if (ImGui::CollapsingHeader(Localization::getLanguage() == Language::PL ? "Kod w C++" : "C++ Code")) {
+            ImGui::TextUnformatted(details.cppCode.c_str()); // Używamy Unformatted aby nie popsuć spacji i formatowania
+        }
 
         ImGui::End();
 
